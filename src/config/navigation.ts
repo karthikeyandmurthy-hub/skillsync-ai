@@ -25,5 +25,5 @@ export const NAV_ITEMS: NavItem[] = [
   { to: "/resume", label: "Resume Analyzer", icon: FileText },
   { to: "/github", label: "GitHub Verification", icon: Github },
   { to: "/skill-gap", label: "Skill Gap & Roadmap", icon: Target },
-  { to: "/recruiter", label: "Recruiter View", icon: Briefcase, badge: "Soon" },
+  { to: "/recruiter", label: "Recruiter View", icon: Briefcase },
 ];
