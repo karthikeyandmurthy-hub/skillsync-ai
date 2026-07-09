@@ -5,7 +5,9 @@
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, FileText, Github, ShieldCheck, Sparkles, Target } from "lucide-react";
+import { ArrowRight, FileText, Github, ShieldCheck, Target } from "lucide-react";
+
+const LOGO_URL = "/logo-dark.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -26,9 +28,11 @@ function Landing() {
       <header className="sticky top-0 z-10 border-b border-border bg-background/80 backdrop-blur">
         <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
           <Link to="/" className="flex items-center gap-2">
-            <span className="grid size-8 place-items-center rounded-lg bg-primary text-primary-foreground">
-              <Sparkles className="size-4" />
-            </span>
+            <img
+              src={LOGO_URL}
+              alt="SkillSync logo"
+              className="size-8 rounded-lg object-contain bg-primary/10 p-1"
+            />
             <span className="font-display text-lg font-semibold tracking-tight">SkillSync</span>
           </Link>
           <Link
