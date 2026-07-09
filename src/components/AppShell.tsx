@@ -7,7 +7,7 @@
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
 import { NAV_ITEMS } from "@/config/navigation";
 
-const LOGO_URL = "/logo-light.png";
+const LOGO_URL = "/logo-dark.png";
 
 export function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
