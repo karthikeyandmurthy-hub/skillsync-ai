@@ -2,7 +2,6 @@
  * Purpose: Client-side text extraction from resume files (PDF/TXT/DOCX-fallback).
  */
 import * as pdfjs from "pdfjs-dist";
-// @ts-expect-error - worker url import
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
