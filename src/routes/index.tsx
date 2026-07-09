@@ -5,7 +5,9 @@
  */
 
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, FileText, Github, ShieldCheck, Sparkles, Target } from "lucide-react";
+import { ArrowRight, FileText, Github, ShieldCheck, Target } from "lucide-react";
+
+const LOGO_URL = "/logo-light.png";
 
 export const Route = createFileRoute("/")({
   head: () => ({

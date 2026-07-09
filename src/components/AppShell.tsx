@@ -5,8 +5,9 @@
  */
 
 import { Link, Outlet, useRouterState } from "@tanstack/react-router";
-import { Sparkles } from "lucide-react";
 import { NAV_ITEMS } from "@/config/navigation";
+
+const LOGO_URL = "/logo-light.png";
 
 export function AppShell() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
