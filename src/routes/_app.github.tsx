@@ -29,19 +29,18 @@ function GithubPage() {
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
 
-  function run() {
+  async function run() {
     setError(null);
     setRunning(true);
-    setTimeout(() => {
-      try {
-        setResult(analyzeGithub(url));
-      } catch (e) {
-        setError(e instanceof AppError ? e.userMessage : "Something went wrong.");
-        setResult(null);
-      } finally {
-        setRunning(false);
-      }
-    }, 500);
+    try {
+      const res = await analyzeGithub(url);
+      setResult(res);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Something went wrong.");
+      setResult(null);
+    } finally {
+      setRunning(false);
+    }
   }
 
   return (
@@ -75,6 +74,11 @@ function GithubPage() {
             {running ? "Scanning…" : <>Verify profile <ArrowRight className="size-4" /></>}
           </button>
         </div>
+        {running && (
+          <p className="mt-2 text-xs text-muted-foreground animate-pulse">
+            ⏳ Fetching GitHub data and running AI analysis — usually takes 5–15 seconds…
+          </p>
+        )}
         {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
       </div>
 

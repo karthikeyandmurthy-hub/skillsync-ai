@@ -29,15 +29,23 @@ function ResumePage() {
   const [roleId, setRoleId] = useState<RoleId>("ai-engineer");
   const [result, setResult] = useState<ATSResult | null>(null);
   const [running, setRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  function run() {
+  async function run() {
     if (!file) return;
     setRunning(true);
-    // simulate latency for UX
-    setTimeout(() => {
-      setResult(analyzeResume(file.name, ROLE_MAP[roleId]));
+    setError(null);
+    setResult(null);
+    try {
+      const res = await analyzeResume(file, ROLE_MAP[roleId]);
+      setResult(res);
+    } catch (e) {
+      console.error("[RESUME_ANALYSIS_ERROR]", e);
+      const msg = e instanceof Error ? e.message : "Something went wrong.";
+      setError(msg.includes("aborted") ? "Analysis timed out. Please try again." : msg);
+    } finally {
       setRunning(false);
-    }, 600);
+    }
   }
 
   return (
@@ -77,6 +85,14 @@ function ResumePage() {
           >
             {running ? "Analyzing…" : <>Analyze resume <ArrowRight className="size-4" /></>}
           </button>
+          {running && (
+            <p className="mt-3 text-center text-xs text-muted-foreground animate-pulse">
+              ⏳ AI is reading your resume — usually takes 5–15 seconds…
+            </p>
+          )}
+          {error && (
+            <p className="mt-3 text-center text-xs text-destructive">{error}</p>
+          )}
         </div>
       </div>
 
