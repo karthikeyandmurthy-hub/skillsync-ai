@@ -5,6 +5,7 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ArrowRight, Sparkles, Wand2 } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
@@ -12,7 +13,10 @@ import { FileDropzone } from "@/components/FileDropzone";
 import { ScoreRing } from "@/components/ScoreRing";
 import { ROLES, ROLE_MAP } from "@/config/roles";
 import { analyzeResume } from "@/services/atsEngine";
-import type { ATSResult, RoleId } from "@/types";
+import { analyzeResumeAI } from "@/lib/ai.functions";
+import { extractResumeText } from "@/lib/pdfExtract";
+import { SCORING_WEIGHTS, CATEGORY_LABELS } from "@/config/scoringWeights";
+import type { ATSResult, RoleId, ScoreCategory } from "@/types";
 
 export const Route = createFileRoute("/_app/resume")({
   head: () => ({
@@ -29,15 +33,49 @@ function ResumePage() {
   const [roleId, setRoleId] = useState<RoleId>("ai-engineer");
   const [result, setResult] = useState<ATSResult | null>(null);
   const [running, setRunning] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const runAI = useServerFn(analyzeResumeAI);
 
-  function run() {
+  async function run() {
     if (!file) return;
     setRunning(true);
-    // simulate latency for UX
-    setTimeout(() => {
-      setResult(analyzeResume(file.name, ROLE_MAP[roleId]));
+    setError(null);
+    const role = ROLE_MAP[roleId];
+    try {
+      const text = await extractResumeText(file);
+      if (!text || text.length < 40) throw new Error("Could not read resume text. Try a PDF or TXT file.");
+      const ai = await runAI({
+        data: {
+          resumeText: text,
+          roleLabel: role.label,
+          requiredSkills: role.requiredSkills,
+          keywords: role.keywords,
+        },
+      });
+      const categories: ScoreCategory[] = (Object.keys(SCORING_WEIGHTS) as ScoreCategory["key"][]).map((key) => {
+        const found = ai.categories?.find((c) => c.key === key);
+        return {
+          key,
+          label: CATEGORY_LABELS[key],
+          weight: SCORING_WEIGHTS[key],
+          score: Math.max(0, Math.min(100, Math.round(found?.score ?? 0))),
+          notes: found?.notes ?? [],
+        };
+      });
+      setResult({
+        overall: Math.max(0, Math.min(100, Math.round(ai.overall))),
+        role,
+        categories,
+        improvements: (ai.improvements ?? []).map((i, idx) => ({ ...i, id: i.id || `imp-${idx}` })),
+      });
+    } catch (e) {
+      console.error(e);
+      setError(e instanceof Error ? e.message : "Analysis failed.");
+      // Fallback to deterministic mock so the UI still populates.
+      setResult(analyzeResume(file.name, role));
+    } finally {
       setRunning(false);
-    }, 600);
+    }
   }
 
   return (
@@ -75,8 +113,9 @@ function ResumePage() {
             disabled={!file || running}
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {running ? "Analyzing…" : <>Analyze resume <ArrowRight className="size-4" /></>}
+            {running ? "Analyzing with AI…" : <>Analyze resume <ArrowRight className="size-4" /></>}
           </button>
+          {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         </div>
       </div>
 
