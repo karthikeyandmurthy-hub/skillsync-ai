@@ -5,11 +5,13 @@
  */
 
 import { createFileRoute } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useState } from "react";
 import { ArrowRight, CheckCircle2, Github, Star, XCircle } from "lucide-react";
 import { PageHeader } from "@/components/PageHeader";
 import { ScoreRing } from "@/components/ScoreRing";
-import { analyzeGithub } from "@/services/githubAnalyzer";
+import { parseGithubUrl } from "@/services/githubAnalyzer";
+import { analyzeGithubAI } from "@/lib/ai.functions";
 import type { GithubAnalysis } from "@/types";
 import { AppError } from "@/utils/errors";
 
@@ -28,20 +30,21 @@ function GithubPage() {
   const [result, setResult] = useState<GithubAnalysis | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [running, setRunning] = useState(false);
+  const runAI = useServerFn(analyzeGithubAI);
 
-  function run() {
+  async function run() {
     setError(null);
     setRunning(true);
-    setTimeout(() => {
-      try {
-        setResult(analyzeGithub(url));
-      } catch (e) {
-        setError(e instanceof AppError ? e.userMessage : "Something went wrong.");
-        setResult(null);
-      } finally {
-        setRunning(false);
-      }
-    }, 500);
+    try {
+      const username = parseGithubUrl(url);
+      const ai = await runAI({ data: { username } });
+      setResult(ai as GithubAnalysis);
+    } catch (e) {
+      setError(e instanceof AppError ? e.userMessage : e instanceof Error ? e.message : "Something went wrong.");
+      setResult(null);
+    } finally {
+      setRunning(false);
+    }
   }
 
   return (
