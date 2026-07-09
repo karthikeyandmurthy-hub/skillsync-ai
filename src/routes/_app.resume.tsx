@@ -113,8 +113,9 @@ function ResumePage() {
             disabled={!file || running}
             className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-medium text-primary-foreground transition-all hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {running ? "Analyzing…" : <>Analyze resume <ArrowRight className="size-4" /></>}
+            {running ? "Analyzing with AI…" : <>Analyze resume <ArrowRight className="size-4" /></>}
           </button>
+          {error && <p className="mt-2 text-xs text-destructive">{error}</p>}
         </div>
       </div>
 
