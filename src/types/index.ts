@@ -89,3 +89,84 @@ export interface ActivityItem {
   timestamp: string;
   kind: "resume" | "github" | "system";
 }
+
+// ── Skill Gap ──────────────────────────────────────────────────────────────
+
+export interface SkillGap {
+  skill: string;
+  category: string;
+  priority: "critical" | "high" | "medium" | "low";
+  currentLevel: number; // 0-100
+  targetLevel: number;  // 0-100
+  rationale: string;
+}
+
+export interface LearningMilestone {
+  id: string;
+  title: string;
+  description: string;
+  skills: string[];
+  resources: LearningResource[];
+  durationWeeks: number;
+  phase: "30-day" | "60-day" | "90-day";
+}
+
+export interface LearningResource {
+  title: string;
+  type: "course" | "project" | "book" | "practice";
+  url?: string;
+  estimatedHours: number;
+}
+
+export interface SkillGapResult {
+  role: string;
+  overallReadiness: number; // 0-100
+  gaps: SkillGap[];
+  strengths: string[];
+  milestones: LearningMilestone[];
+  summary: string;
+}
+
+// ── Recruiter View ──────────────────────────────────────────────────────────
+
+export interface RecruiterSignal {
+  label: string;
+  detail: string;
+  impact: "positive" | "negative" | "neutral";
+}
+
+export interface ShortlistFactor {
+  factor: string;
+  score: number; // 0-100
+  weight: number; // 0-100
+  verdict: "strong" | "average" | "weak";
+}
+
+export interface RecruiterViewResult {
+  candidateName: string;
+  targetRole: string;
+  shortlistProbability: number; // 0-100
+  firstImpressionScore: number; // 0-100
+  shortlistFactors: ShortlistFactor[];
+  strongPoints: RecruiterSignal[];
+  redFlags: RecruiterSignal[];
+  elevatorPitch: string;
+  recommendedAction: "strong_yes" | "yes" | "maybe" | "no";
+  actionRationale: string;
+}
+
+export interface CSVCandidate {
+  id: string;
+  name: string;
+  email: string;
+  skills: string[];
+  experience: string;
+  education: string;
+  summary: string;
+  matchScore: number;
+  verdict: "strong_yes" | "yes" | "maybe" | "no";
+  matchedSkills: string[];
+  missingSkills: string[];
+  isDeepScreened?: boolean;
+  deepScreenResult?: RecruiterViewResult;
+}
